@@ -1,0 +1,43 @@
+#! /bin/sh
+# /etc/init.d/vlmcsd
+#
+### BEGIN INIT INFO
+# Provides: vlmcsd
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Start and stop vlmcsd - KMS
+# Description: vlmcsd - KMS Emulator in C
+
+### END INIT INFO
+
+# PID file
+touch /var/lock/vlmcsd.pid
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+  start)
+    echo "Starting KMS server"
+    /home/osmc/vlmcsd/vlmcsd-1108-2017-01-19-Hotbird64/binaries/Linux/arm/little-endian/static/vlmcsd-armv7el-uclibc-static -d -l /home/osmc/kms_log/logfile.`date +%F` ; 
+	sleep 2 ; 
+	ps ax | grep -v grep | grep vlmcsd | cut -f1 -d" " - | xargs > /var/lock/vlmcsd.pid
+ #  for i in `ps -efa | grep -i vlmcsd | grep -v grep | awk '{print $2}'` ; do echo $i > /var/lock/vlmcsd.pid ; done
+ ;;
+  stop)
+    echo "Stopping KMS server"
+ cat /var/lock/vlmcsd.pid | xargs kill -15;
+ truncate -s 0  /var/lock/vlmcsd.pid
+    ;;
+  status)
+for i in `ls -Art /home/osmc/kms_log/ | tail -n 1`; do cat /home/osmc/kms_log/$i ; done
+     ;;
+  *)
+    echo "Usage: /etc/init.d/vlmcsd {start|stop|status}"
+    exit 1
+    ;;
+esac
+
+exit 0
